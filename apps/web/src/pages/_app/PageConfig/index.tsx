@@ -50,16 +50,14 @@ const PageConfig: FC<PageConfigProps> = ({ children }) => {
     return null;
   }
 
-  if (scope === ScopeType.PUBLIC && account) {
-    push(RoutePath.Home);
+  if (route === '/sign-in' && account) {
+    push(RoutePath.Profile);
     return null;
   }
 
   return (
     <Scope>
-      <Layout>
-        {children}
-      </Layout>
+      <Layout>{children}</Layout>
     </Scope>
   );
 };

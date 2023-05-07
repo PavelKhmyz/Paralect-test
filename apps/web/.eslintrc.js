@@ -10,6 +10,7 @@ module.exports = {
     'next',
     'airbnb',
     'airbnb-typescript',
+    "prettier",
   ],
   ignorePatterns: ['.eslintrc.js'],
   parserOptions: {

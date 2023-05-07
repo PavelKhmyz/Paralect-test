@@ -1,8 +1,7 @@
 import multer from '@koa/multer';
-
 import { cloudStorageService } from 'services';
 import { Next, AppKoaContext, AppRouter } from 'types';
-import { userService } from 'resources/user';
+import publicService from '../public.service';
 
 const upload = multer();
 
@@ -20,22 +19,25 @@ async function handler(ctx: AppKoaContext) {
   const { user } = ctx.state;
   const { file } = ctx.request;
 
-  if (user.avatarUrl) {
-    const fileName = cloudStorageService.helpers.getFileName(user.avatarUrl);
-
-    await cloudStorageService.deleteObject(`avatars/${fileName}`);
-  }
-
   const fileName = `${user._id}-${Date.now()}-${file.originalname}`;
-  const location = await cloudStorageService.upload(`avatars/${fileName}`, file);
+  const location = await cloudStorageService.upload(`gallery/${fileName}`, file);
 
-  const updatedUser = await userService.updateOne({ _id: user._id }, () => ({
-    avatarUrl: location,
-  }));
+  const newAsset = {
+    asset: location,
+    author: '',
+    discription: '',
+    name: '',
+    public: false,
+    like: [0, []],
+    dislike: [0, []],
+    owner: user._id,
+  };
 
-  ctx.body = userService.getPublic(updatedUser);
+  await publicService.insertOne(newAsset);
+
+  ctx.body = await publicService.findOne({ asset: location });
 }
 
 export default (router: AppRouter) => {
-  router.post('/avatar', upload.single('file'), validator, handler);
+  router.post('/upload-asset', upload.single('file'), validator, handler);
 };

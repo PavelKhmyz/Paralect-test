@@ -24,17 +24,17 @@ const UserMenu: FC = () => {
           border: `1px solid ${theme.colors.gray[4]}`,
         })}
       >
+        <Menu.Item component={Link} href={RoutePath.Profile} icon={<IconUserCircle size={16} />}>
+          Profile
+        </Menu.Item>
         <Menu.Item
           component={Link}
-          href={RoutePath.Profile}
+          href={RoutePath.ProfileSettings}
           icon={<IconUserCircle size={16} />}
         >
           Profile settings
         </Menu.Item>
-        <Menu.Item
-          onClick={() => signOut()}
-          icon={<IconLogout size={16} />}
-        >
+        <Menu.Item onClick={() => signOut()} icon={<IconLogout size={16} />}>
           Log out
         </Menu.Item>
       </Menu.Dropdown>

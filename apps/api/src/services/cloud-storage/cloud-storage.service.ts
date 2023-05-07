@@ -1,104 +1,41 @@
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Upload } from '@aws-sdk/lib-storage';
-import {
-  S3Client,
-  GetObjectCommand,
-  CopyObjectCommand,
-  DeleteObjectCommand,
-} from '@aws-sdk/client-s3';
-
-import {
-  type GetObjectOutput,
-  type CopyObjectOutput,
-  type DeleteObjectOutput,
-  type CompleteMultipartUploadOutput,
-} from '@aws-sdk/client-s3';
-import { type File } from '@koa/multer';
-
 import config from 'config';
-
+import admin from 'firebase-admin';
+import { cert } from 'firebase-admin/app';
 import * as helpers from './cloud-storage.helper';
+import multer from '@koa/multer';
 
-const client = new S3Client(config.cloudStorage);
-const Bucket = config.cloudStorage.bucket;
+const FirebaseApp = admin.initializeApp({
+  credential: cert(config.cloudStorage.credentials),
+  storageBucket: config.cloudStorage.storageBucket,
+  databaseURL: config.cloudStorage.databaseURL,
+});
 
-const upload = (fileName: string, file: File): Promise<CompleteMultipartUploadOutput> => {
-  const params = {
-    Bucket,
-    ContentType: file.mimetype,
-    Body: file.buffer,
-    Key: fileName,
-    ACL: 'private',
-  };
+const bucket = FirebaseApp.storage().bucket();
 
-  const multipartUpload = new Upload({
-    client,
-    params,
+const upload = async (fileName: string, file: multer.File) => {
+  const name = bucket.file(fileName);
+  await name.save(file.buffer);
+
+  name.makePublic((err, apiResponse) => {
+    if (err) {
+      console.log(err);
+    }
+    console.log('MAKE_PUBLIC:', apiResponse);
   });
 
-  return multipartUpload.done();
+  const url = name.publicUrl();
+
+  return url;
 };
 
-const uploadPublic = (fileName: string, file: File): Promise<CompleteMultipartUploadOutput> => {
-  const params = {
-    Bucket,
-    ContentType: file.mimetype,
-    Body: file.buffer,
-    Key: fileName,
-    ACL: 'public-read',
-  };
-
-  const multipartUpload = new Upload({
-    client,
-    params,
+const deleteObject = async (fileName: string) => {
+  bucket.file(fileName).delete((err, apiResponse) => {
+    console.log('RESPONSE:', apiResponse);
   });
-
-  return multipartUpload.done();
-};
-
-const getSignedDownloadUrl = (fileName: string): Promise<string> => {
-  const command = new GetObjectCommand({
-    Bucket,
-    Key: fileName,
-  });
-
-  return getSignedUrl(client, command, { expiresIn: 1800 });
-};
-
-const getObject = (fileName: string): Promise<GetObjectOutput> => {
-  const command = new GetObjectCommand({
-    Bucket,
-    Key: fileName,
-  });
-
-  return client.send(command);
-};
-
-const copyObject = (filePath: string, copyFilePath: string): Promise<CopyObjectOutput> => {
-  const command = new CopyObjectCommand({
-    Bucket,
-    CopySource: encodeURI(`${Bucket}/${copyFilePath}`),
-    Key: filePath,
-  });
-
-  return client.send(command);
-};
-
-const deleteObject = (fileName: string): Promise<DeleteObjectOutput> => {
-  const command = new DeleteObjectCommand( {
-    Bucket,
-    Key: fileName,
-  });
-
-  return client.send(command);
 };
 
 export default {
   helpers,
   upload,
-  uploadPublic,
-  getObject,
-  copyObject,
   deleteObject,
-  getSignedDownloadUrl,
 };

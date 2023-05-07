@@ -12,15 +12,18 @@ const base = {
   },
   apiUrl: '',
   webUrl: '',
-  redis: process.env.REDIS_CONNECTION || 'redis://:super-secured-password@redis-master.redis.svc.cluster.local:6379',
+  redis:
+    process.env.REDIS_CONNECTION ||
+    'redis://:super-secured-password@redis-master.redis.svc.cluster.local:6379',
   sendgridApiKey: process.env.SENDGRID_API_KEY || '',
   cloudStorage: {
-    endpoint: process.env.CLOUD_STORAGE_ENDPOINT || '',
     credentials: {
-      accessKeyId: process.env.CLOUD_STORAGE_ACCESS_KEY_ID || '',
-      secretAccessKey: process.env.CLOUD_STORAGE_SECRET_ACCESS_KEY || '',
+      projectId: process.env.CLOUD_STORAGE_PROJECT_ID || '',
+      clientEmail: process.env.CLOUD_STORAGE_CLIENT_EMAIL || '',
+      privateKey: process.env.CLOUD_STORAGE_PRIVATE_KEY || '',
     },
-    bucket: process.env.CLOUD_STORAGE_BUCKET || '',
+    storageBucket: process.env.CLOUD_STORAGE_BUCKET || '',
+    databaseURL: process.env.CLOUD_STORAGE_URL || '',
   },
   adminKey: process.env.ADMIN_KEY || '',
   google: {

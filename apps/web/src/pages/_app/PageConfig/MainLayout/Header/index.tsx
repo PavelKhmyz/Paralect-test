@@ -1,9 +1,6 @@
 import { memo, FC } from 'react';
 import { RoutePath } from 'routes';
-import {
-  Header as LayoutHeader,
-  Container,
-} from '@mantine/core';
+import { Header as LayoutHeader, Container } from '@mantine/core';
 import { Link } from 'components';
 import { LogoImage } from 'public/images';
 
@@ -15,11 +12,9 @@ import ShadowLoginBanner from './components/ShadowLoginBanner';
 const Header: FC = () => {
   const { data: account } = accountApi.useGet();
 
-  if (!account) return null;
-
   return (
     <LayoutHeader height="72px">
-      {account.isShadow && <ShadowLoginBanner email={account.email} />}
+      {account && account.isShadow && <ShadowLoginBanner email={account.email} />}
       <Container
         sx={(theme) => ({
           minHeight: '72px',
@@ -36,7 +31,13 @@ const Header: FC = () => {
         <Link type="router" href={RoutePath.Home}>
           <LogoImage />
         </Link>
-        <UserMenu />
+        {account ? (
+          <UserMenu />
+        ) : (
+          <Link type="router" href={RoutePath.SignIn}>
+            <h1>SIGN IN</h1>
+          </Link>
+        )}
       </Container>
     </LayoutHeader>
   );

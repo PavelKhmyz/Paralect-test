@@ -1,6 +1,4 @@
-export const getFileKey = (url: string) => {
-  const decodedUrl = decodeURI(url);
-  const { pathname } = new URL(decodedUrl);
-
-  return pathname.substring(1);
+export const getFileName = (url: string) => {
+  const splitFileName = url.split('%2F');
+  return splitFileName[splitFileName.length - 1];
 };

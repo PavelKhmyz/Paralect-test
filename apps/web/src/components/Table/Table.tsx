@@ -1,12 +1,5 @@
 import { useMemo, useCallback, useState, FC } from 'react';
-import {
-  Table as TableContainer,
-  Checkbox,
-  Pagination,
-  Group,
-  Text,
-  Paper,
-} from '@mantine/core';
+import { Table as TableContainer, Checkbox, Pagination, Group, Text, Paper } from '@mantine/core';
 import {
   ColumnDef,
   flexRender,
@@ -61,45 +54,56 @@ const Table: FC<TableProps> = ({
   const isSelectable = !!rowSelection && !!setRowSelection;
   const isSortable = useMemo(() => !!onSortingChange, [onSortingChange]);
 
-  const selectableColumns: ColumnDef<unknown, any>[] = useMemo(() => [{
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllRowsSelected()}
-        indeterminate={table.getIsSomeRowsSelected()}
-        onChange={table.getToggleAllRowsSelectedHandler()}
-        sx={(theme) => ({
-          ...(table.getIsSomeRowsSelected() && {
-            '& .mantine-Checkbox-input': {
-              backgroundColor: theme.colors.blue[6],
-              border: 'none',
-            },
-          }),
-          color: theme.white,
-        })}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        indeterminate={row.getIsSomeSelected()}
-        onChange={row.getToggleSelectedHandler()}
-      />
-    ),
-  }], []);
+  const selectableColumns: ColumnDef<unknown, any>[] = useMemo(
+    () => [
+      {
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllRowsSelected()}
+            indeterminate={table.getIsSomeRowsSelected()}
+            onChange={table.getToggleAllRowsSelectedHandler()}
+            sx={(theme) => ({
+              ...(table.getIsSomeRowsSelected() && {
+                '& .mantine-Checkbox-input': {
+                  backgroundColor: theme.colors.blue[6],
+                  border: 'none',
+                },
+              }),
+              color: theme.white,
+            })}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            indeterminate={row.getIsSomeSelected()}
+            onChange={row.getToggleSelectedHandler()}
+          />
+        ),
+      },
+    ],
+    []
+  );
 
-  const pagination = useMemo(() => ({
-    pageIndex,
-    pageSize,
-  }), [pageIndex, pageSize]);
+  const pagination = useMemo(
+    () => ({
+      pageIndex,
+      pageSize,
+    }),
+    [pageIndex, pageSize]
+  );
 
-  const onPageChangeHandler = useCallback((currentPage: any, direction?: string) => {
-    setPagination({ pageIndex: currentPage, pageSize });
+  const onPageChangeHandler = useCallback(
+    (currentPage: any, direction?: string) => {
+      setPagination({ pageIndex: currentPage, pageSize });
 
-    if (onPageChange) {
-      onPageChange((prev: Record<string, any>) => ({ ...prev, page: currentPage, direction }));
-    }
-  }, [onPageChange, pageSize]);
+      if (onPageChange) {
+        onPageChange((prev: Record<string, any>) => ({ ...prev, page: currentPage, direction }));
+      }
+    },
+    [onPageChange, pageSize]
+  );
 
   const table = useReactTable({
     data,
@@ -135,10 +139,7 @@ const Table: FC<TableProps> = ({
   return (
     <>
       <Paper radius="sm" withBorder>
-        <TableContainer
-          horizontalSpacing={horizontalSpacing}
-          verticalSpacing={verticalSpacing}
-        >
+        <TableContainer horizontalSpacing={horizontalSpacing} verticalSpacing={verticalSpacing}>
           <Thead
             isSortable={isSortable}
             headerGroups={table.getHeaderGroups()}
@@ -154,15 +155,7 @@ const Table: FC<TableProps> = ({
       <Group position="right">
         {dataCount && (
           <Text size="sm" color="dimmed">
-            Showing
-            {' '}
-            <b>{table.getRowModel().rows.length}</b>
-            {' '}
-            of
-            {' '}
-            <b>{dataCount}</b>
-            {' '}
-            results
+            Showing <b>{table.getRowModel().rows.length}</b> of <b>{dataCount}</b> results
           </Text>
         )}
         {renderPagination()}

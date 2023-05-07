@@ -1,39 +1,27 @@
-import { Dispatch, SetStateAction, memo, useEffect, useState } from 'react';
-import { Group, Button, Stack } from '@mantine/core';
+import { memo, useState } from 'react';
+import { Group, Text, Button, Stack } from '@mantine/core';
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 
 import { handleError } from 'utils';
 import { accountApi } from 'resources/account';
 
-import { publicApi } from 'resources/public';
-import { DataType } from 'resources/public/public.types';
 import { useStyles } from './styles';
 
-interface PhotoUploadProps {
-  assetUrl: DataType | undefined;
-  onUpload: Dispatch<SetStateAction<DataType | undefined>>;
-}
-
-const PhotoUpload = ({ assetUrl, onUpload }: PhotoUploadProps) => {
+const PhotoUpload = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [asset, setAsset] = useState('');
   const { classes, cx } = useStyles();
-
-  useEffect(() => {
-    if (assetUrl) setTimeout(() => setAsset(assetUrl.asset), 200);
-  }, [assetUrl]);
 
   const { data: account } = accountApi.useGet();
 
-  const { mutate: uploadAsset } = publicApi.useUploadAsset();
-  const { mutate: removeAsset } = publicApi.useRemoveAsset();
+  const { mutate: uploadProfilePhoto } = accountApi.useUploadAvatar<FormData>();
+  const { mutate: removeProfilePhoto } = accountApi.useRemoveAvatar();
 
   if (!account) return null;
 
   const isFileSizeCorrect = (file: any) => {
     const oneMBinBytes = 1048576;
-    if (file.size / oneMBinBytes > 2) {
+    if ((file.size / oneMBinBytes) > 2) {
       setErrorMessage('Sorry, you cannot upload a file larger than 2 MB.');
       return false;
     }
@@ -52,8 +40,8 @@ const PhotoUpload = ({ assetUrl, onUpload }: PhotoUploadProps) => {
     if (isFileFormatCorrect(imageFile) && isFileSizeCorrect(imageFile) && imageFile) {
       const body = new FormData();
       body.append('file', imageFile, imageFile.name);
-      await uploadAsset(body, {
-        onSuccess: (data) => onUpload(data),
+
+      await uploadProfilePhoto(body, {
         onError: (err) => handleError(err),
       });
     }
@@ -61,28 +49,15 @@ const PhotoUpload = ({ assetUrl, onUpload }: PhotoUploadProps) => {
 
   const handlerPhotoRemove = async () => {
     setErrorMessage(null);
-    if (assetUrl) await removeAsset(assetUrl.asset);
+    await removeProfilePhoto();
   };
 
   return (
     <>
-      <Stack w="65%" h="100%">
-        <Group w="100%" h="100%" align="center" spacing={32}>
-          <Stack w="100%" h="100%" align="center" spacing={10}>
+      <Stack>
+        <Group align="flex-start" spacing={32}>
+          <Stack align="center" spacing={10}>
             <Dropzone
-              sx={
-                asset
-                  ? {
-                      backgroundImage: `url(${asset})`,
-                      backgroundRepeat: 'no-repeat',
-                      height: '500px',
-                      backgroundSize: 'cover',
-                      border: 'none',
-                    }
-                  : undefined
-              }
-              w="100%"
-              h="100%"
               name="avatarUrl"
               accept={['image/png', 'image/jpg', 'image/jpeg']}
               onDrop={handlePhotoUpload}
@@ -95,20 +70,37 @@ const PhotoUpload = ({ assetUrl, onUpload }: PhotoUploadProps) => {
                   [classes.error]: errorMessage,
                 })}
               >
-                {asset ? (
-                  <div className={classes.innerAvatar}>
-                    <IconPencil />
+                {account.avatarUrl ? (
+                  <div
+                    className={classes.avatar}
+                    style={{
+                      backgroundImage: `url(${account.avatarUrl})`,
+                    }}
+                  >
+                    <div className={classes.innerAvatar}>
+                      <IconPencil />
+                    </div>
                   </div>
-                ) : (
-                  <IconPlus size={88} className={classes.addIcon} />
-                )}
+                ) : <IconPlus className={classes.addIcon} />}
               </label>
             </Dropzone>
             {account.avatarUrl && (
-              <Button type="submit" variant="subtle" onClick={handlerPhotoRemove} size="sm">
+              <Button
+                type="submit"
+                variant="subtle"
+                onClick={handlerPhotoRemove}
+                size="sm"
+              >
                 Remove
               </Button>
             )}
+          </Stack>
+          <Stack spacing={4} pt={6}>
+            <Text weight={600} size="lg">Profile picture</Text>
+            <Text className={classes.text}>
+              JPG, JPEG or PNG
+              Max size = 2MB
+            </Text>
           </Stack>
         </Group>
       </Stack>
