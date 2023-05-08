@@ -16,14 +16,10 @@ import PageConfig from './PageConfig';
 const App: FC<AppProps> = ({ Component, pageProps }) => (
   <>
     <Head>
-      <title>Ship</title>
+      <title>CatsGramm</title>
     </Head>
     <QueryClientProvider client={queryClient}>
-      <MantineProvider
-        theme={shipTheme}
-        withGlobalStyles
-        withNormalizeCSS
-      >
+      <MantineProvider theme={shipTheme} withGlobalStyles withNormalizeCSS>
         <ModalsProvider>
           <Global styles={globalStyles} />
           <Notifications autoClose={10000} />

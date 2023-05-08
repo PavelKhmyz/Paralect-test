@@ -33,7 +33,11 @@ const Link: FC<LinkProps> = ({
     case 'router':
       return (
         <NextLink href={href} passHref style={{ textDecoration: underline ? 'underline' : 'none' }}>
-          <Anchor
+          <div>
+            {icon}
+            {children}
+          </div>
+          {/* <Anchor
             size={size}
             inherit={inherit}
             underline={underline}
@@ -42,7 +46,7 @@ const Link: FC<LinkProps> = ({
           >
             {icon}
             {children}
-          </Anchor>
+          </Anchor> */}
         </NextLink>
       );
 

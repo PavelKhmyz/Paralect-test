@@ -2,7 +2,6 @@ import { memo, FC } from 'react';
 import { RoutePath } from 'routes';
 import { Header as LayoutHeader, Container } from '@mantine/core';
 import { Link } from 'components';
-import { LogoImage } from 'public/images';
 
 import { accountApi } from 'resources/account';
 
@@ -28,8 +27,8 @@ const Header: FC = () => {
         })}
         fluid
       >
-        <Link type="router" href={RoutePath.Home}>
-          <LogoImage />
+        <Link type="router" underline={false} href={RoutePath.Home}>
+          <p style={{ fontSize: '25px', fontWeight: 'bold' }}>CatsGramm</p>
         </Link>
         {account ? (
           <UserMenu />

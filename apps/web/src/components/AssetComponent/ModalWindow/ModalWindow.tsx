@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { Button, Group, Stack, UnstyledButton } from '@mantine/core';
+import { IconHeartFilled, IconThumbDownFilled } from '@tabler/icons-react';
 import { useState } from 'react';
 import { publicApi } from 'resources/public';
 import { DataType } from 'resources/public/public.types';
@@ -40,7 +41,10 @@ export const ModalWindow = ({ data, owner, onClose }: ModalWindowProps) => {
     onClose();
   };
   const handleGrade = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    const button = (e.target as HTMLElement).id;
+    if (owner === 'forbiden') {
+      return console.log('Please login');
+    }
+    const button = (e.currentTarget as HTMLElement).id;
     if (button === grade) {
       setGrade('');
       if (button === 'like') {
@@ -135,24 +139,29 @@ export const ModalWindow = ({ data, owner, onClose }: ModalWindowProps) => {
           <h1>{data.name}</h1>
           <p>{data.author}</p>
           <p>{data.discription}</p>
-          <UnstyledButton
-            sx={grade === 'like' ? { backgroundColor: 'red' } : { backgroundColor: 'white' }}
-            id="like"
-            onClick={(e) => {
-              handleGrade(e);
-            }}
-          >
-            {`LIKE: ${status.like[0]}`}
-          </UnstyledButton>
-          <UnstyledButton
-            sx={grade === 'dislike' ? { backgroundColor: 'red' } : { backgroundColor: 'white' }}
-            id="dislike"
-            onClick={(e) => {
-              handleGrade(e);
-            }}
-          >
-            {`DISLIKE: ${status.dislike[0]}`}
-          </UnstyledButton>
+          <Group w="100%">
+            <UnstyledButton
+              sx={grade === 'like' ? { color: 'red' } : { color: 'white' }}
+              id="like"
+              onClick={(e) => {
+                handleGrade(e);
+              }}
+            >
+              <IconHeartFilled />
+              {status.like[0]}
+            </UnstyledButton>
+            <UnstyledButton
+              sx={grade === 'dislike' ? { color: 'black' } : { color: 'white' }}
+              id="dislike"
+              onClick={(e) => {
+                handleGrade(e);
+              }}
+            >
+              <IconThumbDownFilled />
+              {status.dislike[0]}
+            </UnstyledButton>
+          </Group>
+
           {variables()}
         </Stack>
       </Group>

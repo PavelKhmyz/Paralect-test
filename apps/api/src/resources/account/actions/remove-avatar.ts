@@ -6,7 +6,7 @@ async function validator(ctx: AppKoaContext, next: Next) {
   const { user } = ctx.state;
 
   ctx.assertClientError(user.avatarUrl, {
-    global: 'You don\'t have avatar',
+    global: "You don't have avatar",
   });
 
   await next();
@@ -15,11 +15,11 @@ async function validator(ctx: AppKoaContext, next: Next) {
 async function handler(ctx: AppKoaContext) {
   const { user } = ctx.state;
 
-  const fileKey = cloudStorageService.helpers.getFileKey(user.avatarUrl || '');
+  const fileName = cloudStorageService.helpers.getFileName(user.avatarUrl || '');
 
   const [updatedUser] = await Promise.all([
     userService.updateOne({ _id: user._id }, () => ({ avatarUrl: null })),
-    cloudStorageService.deleteObject(fileKey),
+    cloudStorageService.deleteObject(fileName),
   ]);
 
   ctx.body = userService.getPublic(updatedUser);
